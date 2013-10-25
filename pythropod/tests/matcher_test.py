@@ -89,6 +89,28 @@ class ElementMatcherTestCase(unittest.TestCase):
         except NoMatchError:
             self.fail("match() shouldn't have failed on multi-class search")
 
+    def test_inner_text_failure(self):
+        m = ElementMatcher({'tag': 'div', 'text': 'nothing'})
+        self.assertRaises(NoMatchError, m.match, dummyHtml)
+
+    def test_inner_text_success(self):
+        m = ElementMatcher({'tag': 'div', 'text': 'something'})
+        try:
+            m.match(dummyHtml)
+        except NoMatchError:
+            self.fail("match() shouldn't have failed on inner text search")
+
+    def test_regex_failure(self):
+        m = ElementMatcher({'tag': 'p', 'text': 'non[A-Z]xistent', 'regex': True})
+        self.assertRaises(NoMatchError, m.match, dummyHtml)
+
+    def test_regex_success(self):
+        m = ElementMatcher({'tag': 'p', 'text': 'L[oa]rem J?ips(.+)', 'regex': True})
+        try:
+            m.match(dummyHtml)
+        except NoMatchError:
+            self.fail("match() shouldn't have failed on regex text search")
+
 
 if __name__ == '__main__':
     unittest.main()

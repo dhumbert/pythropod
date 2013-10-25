@@ -1,3 +1,4 @@
+import re
 from bs4 import BeautifulSoup
 
 
@@ -50,6 +51,12 @@ class ElementMatcher(Matcher):
 
         if 'class' in self.options:
             args['class_'] = self.options['class']
+
+        if 'text' in self.options:
+            if 'regex' in self.options and self.options['regex']:
+                args['text'] = re.compile(self.options['text'])
+            else:
+                args['text'] = self.options['text']
 
         found = data.find(**args)
 
