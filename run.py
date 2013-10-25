@@ -1,5 +1,4 @@
-from __future__ import print_function
-import sys, json
+import json
 
 from pythropod import pythropod
 

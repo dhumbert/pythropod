@@ -14,6 +14,10 @@ dummyHtml = """
 
 
 class TextMatcherTestCase(unittest.TestCase):
+    def test_text_required(self):
+        m = TextMatcher({})
+        self.assertRaises(Exception, m.match, dummyHtml)
+
     def test_total_failure(self):
         m = TextMatcher({'text': 'notintextatall'})
         self.assertRaises(NoMatchError, m.match, dummyHtml)
