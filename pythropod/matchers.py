@@ -41,10 +41,17 @@ class ElementMatcher(Matcher):
     def match(self, data):
         data = self._parse(data)
 
-        elems = set([])
+        args = {}
         if 'tag' in self.options:
-            for e in data.find_all(self.options['tag']):
-                elems.add(e)
+            args['name'] = self.options['tag']
 
-        if not len(elems):
+        if 'id' in self.options:
+            args['id'] = self.options['id']
+
+        if 'class' in self.options:
+            args['class_'] = self.options['class']
+
+        found = data.find(**args)
+
+        if not found:
             raise NoMatchError("Element not found")

@@ -5,7 +5,9 @@ from pythropod.matchers import TextMatcher, ElementMatcher, NoMatchError
 dummyHtml = """
         <html>
             <body>
-                Lorem ipsum dolor sit amet.
+                <h1 id="realId">Hello, world</h1>
+                <p id="anotherRealId" class="realClass">Lorem ipsum dolor sit amet.</p>
+                <div class="multiClass1 multiClass2">something</div>
             </body>
         </html>
         """
@@ -39,6 +41,53 @@ class ElementMatcherTestCase(unittest.TestCase):
     def test_tag_failure(self):
         m = ElementMatcher({'tag': 'blink'})
         self.assertRaises(NoMatchError, m.match, dummyHtml)
+
+    def test_tag_success(self):
+        m = ElementMatcher({'tag': 'h1'})
+        try:
+            m.match(dummyHtml)
+        except NoMatchError:
+            self.fail("match() shouldn't have failed on element search")
+
+    def test_id_failure(self):
+        m = ElementMatcher({'id': 'fakeId'})
+        self.assertRaises(NoMatchError, m.match, dummyHtml)
+
+    def test_id_success(self):
+        m = ElementMatcher({'id': 'realId'})
+        try:
+            m.match(dummyHtml)
+        except NoMatchError:
+            self.fail("match() shouldn't have failed on element id search")
+
+    def test_tag_and_id_failure(self):
+        m = ElementMatcher({'tag': 'h1', 'id': 'anotherRealId'})
+        self.assertRaises(NoMatchError, m.match, dummyHtml)
+
+    def test_tag_and_id_success(self):
+        m = ElementMatcher({'tag': 'h1', 'id': 'realId'})
+        try:
+            m.match(dummyHtml)
+        except NoMatchError:
+            self.fail("match() shouldn't have failed on tag+id search")
+
+    def test_class_failure(self):
+        m = ElementMatcher({'tag': 'p', 'class': 'fakeClass'})
+        self.assertRaises(NoMatchError, m.match, dummyHtml)
+
+    def test_class_success(self):
+        m = ElementMatcher({'tag': 'p', 'class': 'realClass'})
+        try:
+            m.match(dummyHtml)
+        except NoMatchError:
+            self.fail("match() shouldn't have failed on tag+class search")
+
+    def test_multiple_class_success(self):
+        m = ElementMatcher({'tag': 'div', 'class': 'multiClass1'})
+        try:
+            m.match(dummyHtml)
+        except NoMatchError:
+            self.fail("match() shouldn't have failed on multi-class search")
 
 
 if __name__ == '__main__':
