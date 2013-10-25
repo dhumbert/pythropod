@@ -21,13 +21,30 @@ class TextMatcher(Matcher):
         if 'text' not in self.options:
             raise Exception("Missing text to test for")
 
-        text = self.options['text']
-        data = self._parse(data)
-        dataText = data.get_text()
+        case_sensitive = True if 'case_sensitive' not in self.options else self.options['case_sensitive']
 
-        if text not in dataText:
+        text = self.options['text']
+        if not case_sensitive:
+            text = text.lower()
+
+        data = self._parse(data)
+
+        data_text = data.get_text()
+        if not case_sensitive:
+            data_text = data_text.lower()
+
+        if text not in data_text:
             raise NoMatchError("Text {0} was not found".format(text))
 
 
 class ElementMatcher(Matcher):
-    pass
+    def match(self, data):
+        data = self._parse(data)
+
+        elems = set([])
+        if 'tag' in self.options:
+            for e in data.find_all(self.options['tag']):
+                elems.add(e)
+
+        if not len(elems):
+            raise NoMatchError("Element not found")

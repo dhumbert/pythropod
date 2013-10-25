@@ -1,4 +1,5 @@
-import client, matchers
+import client
+import matchers
 
 
 class TestFailure(Exception):
@@ -11,17 +12,17 @@ class Pythropod(object):
         self.url = str(options['url'])
         self.request = request
 
-        if options['type'] == 'text':
-            self.matcher = matchers.TextMatcher(options)
-        else:
-            self.matcher = matchers.ElementMatcher(options)
+        self.matcher = {
+            'text': matchers.TextMatcher(options),
+            'element': matchers.ElementMatcher(options)
+        }[options['type']]
 
     def run(self):
-        self.request(self.url, self.runTest)
+        self.request(self.url, self.run_test)
 
-    def runTest(self, data):
+    def run_test(self, data):
         try:
-            result = self.matcher.match(data)
+            self.matcher.match(data)
         except matchers.NoMatchError as e:
             print e
 

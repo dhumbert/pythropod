@@ -8,7 +8,7 @@ def request(url, callback):
     """Initiate an HTTP request and call callback with returned data"""
     agent = Agent(reactor)
     d = agent.request('GET', url)
-    d.addCallbacks(_cbResponse, _ebResponse, callbackArgs=[callback])
+    d.addCallbacks(_cb_response, _eb_response, callbackArgs=[callback])
     d.addBoth(_stop)
     reactor.run()
 
@@ -25,14 +25,14 @@ class Midwife(Protocol):
         self.finished.callback(self.data)
 
 
-def _cbResponse(response, callback):
+def _cb_response(response, callback):
     finished = Deferred()
     finished.addCallback(callback)
     response.deliverBody(Midwife(finished))
     return finished
 
 
-def _ebResponse(failure):
+def _eb_response(failure):
     print failure
 
 
