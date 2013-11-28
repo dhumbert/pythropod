@@ -1,14 +1,16 @@
 import unittest
+import grequests
 from pythropod.pythropod import Pythropod
 
+# todo verify that test passed/failed
 class PythropodTestCase(unittest.TestCase):
     def test_pythropod(self):
-        test = {'url': 'http://dhwebco.com', 'type': 'text', 'text': 'Lorem'}
-        p = Pythropod(test, request=_dummyRequest)
+        test = {'id': 666, 'url': 'http://dhwebco.com', 'type': 'text', 'text': 'Lorem'}
+        p = Pythropod(test, None, grequests.Pool(), request=_dummyRequest)
         p.run()
 
 
-def _dummyRequest(url, callback):
+def _dummyRequest(url, callback, pool):
     callback("""
         <html>
             <body>

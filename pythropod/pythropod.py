@@ -1,16 +1,23 @@
 import client
 import matchers
-
+import grequests
 
 class TestFailure(Exception):
     pass
 
 
 class Pythropod(object):
-    def __init__(self, options, request=client.request):
-        # twisted requires URL to be str, not unicode
-        self.url = str(options['url'])
-        self.request = request
+    def __init__(self, options, callback, pool, request=None):
+        self.url = options['url']
+        self.test_id = options['id']
+        
+        if request:
+            self.request = request
+        else:
+            self.request = self._request
+
+        self.callback = callback
+        self.pool = pool
 
         self.matcher = {
             'text': matchers.TextMatcher(options),
@@ -18,11 +25,24 @@ class Pythropod(object):
         }[options['type']]
 
     def run(self):
-        self.request(self.url, self.run_test)
+        self.request(self.url, self.run_test, self.pool)
 
-    def run_test(self, data):
+    def run_test(self, data, **kwargs):
+        test_data = {
+            'id': self.test_id,
+            'url': self.url,
+            'passed': True,
+            'msg': "Test Passed",
+        }
+
         try:
-            self.matcher.match(data)
-        except matchers.NoMatchError as e:
-            print e
+            self.matcher.match(data.content)
+        except Exception as e:
+            test_data['passed'] = False
+            test_data['msg'] = e.message
 
+        self.callback(test_data)
+    
+    def _request(self, url, callback, pool):
+        req = grequests.get(url, hooks=dict(response=callback))
+        grequests.send(req, pool)
