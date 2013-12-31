@@ -1,6 +1,6 @@
-import client
 import matchers
 import grequests
+
 
 class TestFailure(Exception):
     pass
@@ -25,7 +25,15 @@ class Pythropod(object):
         }[options['type']]
 
     def run(self):
-        self.request(self.url, self.run_test, self.pool)
+        try:
+            self.request(self.url, self.run_test, self.pool)
+        except Exception, e:
+            self.callback({
+                'id': self.test_id,
+                'url': self.url,
+                'passed': False,
+                'msg': e.message,
+                })
 
     def run_test(self, data, **kwargs):
         test_data = {
@@ -44,5 +52,6 @@ class Pythropod(object):
         self.callback(test_data)
     
     def _request(self, url, callback, pool):
-        req = grequests.get(url, hooks=dict(response=callback))
+        req = grequests.get(url, hooks=dict(response=callback), verify=False)
         grequests.send(req, pool)
+
