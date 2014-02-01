@@ -19,6 +19,7 @@ class Matcher(object):
 
 class TextMatcher(Matcher):
     def match(self, data):
+        content = data.content
         if 'text' not in self.options:
             raise Exception("Missing text to test for")
 
@@ -28,9 +29,9 @@ class TextMatcher(Matcher):
         if not case_sensitive:
             text = text.lower()
 
-        data = self._parse(data)
+        content = self._parse(content)
 
-        data_text = data.get_text()
+        data_text = content.get_text()
         if not case_sensitive:
             data_text = data_text.lower()
 
@@ -40,7 +41,8 @@ class TextMatcher(Matcher):
 
 class ElementMatcher(Matcher):
     def match(self, data):
-        data = self._parse(data)
+        content = data.content
+        content = self._parse(content)
 
         args = {}
         if 'tag' in self.options:
@@ -58,7 +60,18 @@ class ElementMatcher(Matcher):
             else:
                 args['text'] = self.options['text']
 
-        found = data.find(**args)
+        found = content.find(**args)
 
         if not found:
             raise NoMatchError("Element not found")
+
+
+class ResponseCodeMatcher(Matcher):
+    def __init__(self, options, response_code=200):
+        super(Matcher, self).__init__()
+        self.response_code = response_code
+
+    def match(self, data):
+        if data.status_code != self.response_code:
+            raise NoMatchError("Response code {} does not match expected {}".format(data.status_code, self.response_code))
+

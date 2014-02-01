@@ -21,7 +21,8 @@ class Pythropod(object):
 
         self.matcher = {
             'text': matchers.TextMatcher(options),
-            'element': matchers.ElementMatcher(options)
+            'element': matchers.ElementMatcher(options),
+            'responds': matchers.ResponseCodeMatcher(options, response_code=200),
         }[options['type']]
 
     def run(self):
@@ -44,7 +45,7 @@ class Pythropod(object):
         }
 
         try:
-            self.matcher.match(data.content)
+            self.matcher.match(data)
         except Exception as e:
             test_data['passed'] = False
             test_data['msg'] = e.message
